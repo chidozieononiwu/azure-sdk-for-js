@@ -4,7 +4,22 @@
  * license information.
  */
 
-import { contains, getArgument, gitDiff, GitDiffResult, gitStatus, GitStatusResult, joinPath, normalize, npmInstall, npmRun, NPMScope, NPMViewResult, RunOptions, StringMap } from "@ts-common/azure-js-dev-tools";
+import {
+  contains,
+  getArgument,
+  gitDiff,
+  GitDiffResult,
+  gitStatus,
+  GitStatusResult,
+  joinPath,
+  normalize,
+  npmInstall,
+  npmRun,
+  NPMScope,
+  NPMViewResult,
+  RunOptions,
+  StringMap
+} from "@ts-common/azure-js-dev-tools";
 import * as fs from "fs";
 import gulp from "gulp";
 import * as path from "path";
@@ -39,11 +54,17 @@ function getPackagesToPackArgument(toPackArgument: string | undefined): Packages
 const args: CommandLineOptions = getCommandLineOptions();
 const _logger: Logger = Logger.get();
 
-const azureSDKForJSRepoRoot: string = getArgument("azure-sdk-for-js-repo-root", { defaultValue: __dirname })!;
+const azureSDKForJSRepoRoot: string = getArgument("azure-sdk-for-js-repo-root", {
+  defaultValue: __dirname
+})!;
 const rawToPack: string | undefined = getArgument("to-pack");
 let toPack: PackagesToPack = getPackagesToPackArgument(rawToPack);
-const headReference: string | undefined = getArgument("head-reference", { environmentVariableName: "headReference" });
-const baseReference: string | undefined = getArgument("base-reference", { environmentVariableName: "baseReference" });
+const headReference: string | undefined = getArgument("head-reference", {
+  environmentVariableName: "headReference"
+});
+const baseReference: string | undefined = getArgument("base-reference", {
+  environmentVariableName: "baseReference"
+});
 
 function getDropFolderPath(): string {
   let result: string | undefined = getArgument("drop");
@@ -61,45 +82,61 @@ if (!fs.existsSync(dropFolderPath)) {
   fs.mkdirSync(dropFolderPath);
 }
 
-gulp.task('default', async () => {
-  _logger.log('gulp build --package <package-name>');
-  _logger.log('  --package');
+gulp.task("default", async () => {
+  _logger.log("gulp build --package <package-name>");
+  _logger.log("  --package");
   _logger.log('    NPM package to run "npm run build" on.');
   _logger.log();
-  _logger.log('gulp install --package <package name>');
-  _logger.log('  --package');
+  _logger.log("gulp install --package <package name>");
+  _logger.log("  --package");
   _logger.log('    NPM package to run "npm install" on.');
   _logger.log();
-  _logger.log('gulp codegen [--azure-rest-api-specs-root <azure-rest-api-specs root>] [--use <autorest.typescript root>] [--package <package name>]');
-  _logger.log('  --azure-rest-api-specs-root');
-  _logger.log('    Root location of the local clone of the azure-rest-api-specs-root repository.');
-  _logger.log('  --use');
-  _logger.log('    Root location of autorest.typescript repository. If this is not specified, then the latest installed generator for TypeScript will be used.');
-  _logger.log('  --package');
-  _logger.log('    NPM package to regenerate. If no package is specified, then all packages will be regenerated.');
+  _logger.log(
+    "gulp codegen [--azure-rest-api-specs-root <azure-rest-api-specs root>] [--use <autorest.typescript root>] [--package <package name>]"
+  );
+  _logger.log("  --azure-rest-api-specs-root");
+  _logger.log("    Root location of the local clone of the azure-rest-api-specs-root repository.");
+  _logger.log("  --use");
+  _logger.log(
+    "    Root location of autorest.typescript repository. If this is not specified, then the latest installed generator for TypeScript will be used."
+  );
+  _logger.log("  --package");
+  _logger.log(
+    "    NPM package to regenerate. If no package is specified, then all packages will be regenerated."
+  );
   _logger.log();
-  _logger.log('gulp pack [--package <package name>] [--whatif] [--to-pack <to-pack option>] [--drop <drop folder path>]');
-  _logger.log('  --package');
-  _logger.log('    The name of the package to pack. If no package is specified, then all packages will be packed.');
-  _logger.log('  --whatif');
-  _logger.log('    Don\'t actually pack packages, but just indicate which packages would be packed.');
+  _logger.log(
+    "gulp pack [--package <package name>] [--whatif] [--to-pack <to-pack option>] [--drop <drop folder path>]"
+  );
+  _logger.log("  --package");
+  _logger.log(
+    "    The name of the package to pack. If no package is specified, then all packages will be packed."
+  );
+  _logger.log("  --whatif");
+  _logger.log(
+    "    Don't actually pack packages, but just indicate which packages would be packed."
+  );
   _logger.log("  --to-pack");
-  _logger.log(`    Which packages should be packed. Options are "All", "DifferentVersion", "BranchHasChanges".`);
+  _logger.log(
+    `    Which packages should be packed. Options are "All", "DifferentVersion", "BranchHasChanges".`
+  );
   _logger.log(`  --drop`);
-  _logger.log(`    The folder where packed tarballs will be put. Defaults to "<azure-sdk-for-js-root>/drop/".`);
+  _logger.log(
+    `    The folder where packed tarballs will be put. Defaults to "<azure-sdk-for-js-root>/drop/".`
+  );
 });
 
 gulp.task("install", async () => {
   _logger.log(`Passed arguments: ${Argv.print()}`);
-  const argv: (Argv.PackageOptions & Argv.RepositoryOptions)
-    = Argv.construct(Argv.Options.Package, Argv.Options.Repository)
-      .usage("Example: gulp install --package @azure/arm-mariadb")
-      .argv as any;
+  const argv: Argv.PackageOptions & Argv.RepositoryOptions = Argv.construct(
+    Argv.Options.Package,
+    Argv.Options.Repository
+  ).usage("Example: gulp install --package @azure/arm-mariadb").argv as any;
 
   const packageFolderPath: string | undefined = await getPackageFolderPathFromPackageArgument(
     argv.package,
     argv.azureRestAPISpecsRoot,
-    argv.azureSDKForJSRepoRoot,
+    argv.azureSDKForJSRepoRoot
   );
   if (packageFolderPath) {
     npmInstall({ executionFolderPath: packageFolderPath });
@@ -108,15 +145,15 @@ gulp.task("install", async () => {
 
 gulp.task("build", async () => {
   _logger.log(`Passed arguments: ${Argv.print()}`);
-  const argv: (Argv.PackageOptions & Argv.RepositoryOptions)
-    = Argv.construct(Argv.Options.Package, Argv.Options.Repository)
-      .usage("Example: gulp build --package @azure/arm-mariadb")
-      .argv as any;
+  const argv: Argv.PackageOptions & Argv.RepositoryOptions = Argv.construct(
+    Argv.Options.Package,
+    Argv.Options.Repository
+  ).usage("Example: gulp build --package @azure/arm-mariadb").argv as any;
 
   const packageFolderPath: string | undefined = await getPackageFolderPathFromPackageArgument(
     argv.package,
     argv.azureRestAPISpecsRoot,
-    argv.azureSDKForJSRepoRoot,
+    argv.azureSDKForJSRepoRoot
   );
   if (packageFolderPath) {
     npmRun("build", { executionFolderPath: packageFolderPath });
@@ -124,30 +161,37 @@ gulp.task("build", async () => {
 });
 
 // This task is used to generate libraries based on the mappings specified above.
-gulp.task('codegen', async () => {
+gulp.task("codegen", async () => {
   interface CodegenOptions {
     debugger: boolean | undefined;
     use: string | undefined;
-  };
+  }
 
   _logger.log(`Passed arguments: ${Argv.print()}`);
-  const argv: (CodegenOptions & Argv.PackageOptions & Argv.RepositoryOptions)
-    = Argv.construct(Argv.Options.Package, Argv.Options.Repository)
-      .options({
-        "debugger": {
-          boolean: true,
-          alias: ["d", "use-debugger"],
-          description: "Enables debugger attaching to autorest.typescript process"
-        },
-        "use": {
-          string: true,
-          description: "Specifies location for the generator to use"
-        }
-      })
-      .usage("Example: gulp codegen --package @azure/arm-mariadb")
-      .argv as any;
+  const argv: CodegenOptions & Argv.PackageOptions & Argv.RepositoryOptions = Argv.construct(
+    Argv.Options.Package,
+    Argv.Options.Repository
+  )
+    .options({
+      debugger: {
+        boolean: true,
+        alias: ["d", "use-debugger"],
+        description: "Enables debugger attaching to autorest.typescript process"
+      },
+      use: {
+        string: true,
+        description: "Specifies location for the generator to use"
+      }
+    })
+    .usage("Example: gulp codegen --package @azure/arm-mariadb").argv as any;
 
-  await generateSdk(argv.azureRestAPISpecsRoot, argv.azureSDKForJSRepoRoot, argv.package, argv.use, argv.debugger);
+  await generateSdk(
+    argv.azureRestAPISpecsRoot,
+    argv.azureSDKForJSRepoRoot,
+    argv.package,
+    argv.use,
+    argv.debugger
+  );
 });
 
 function pack(): void {
@@ -167,15 +211,19 @@ function pack(): void {
   if (toPack === PackagesToPack.BranchHasChanges) {
     let packBaseReference: string | undefined = baseReference;
     if (!packBaseReference) {
-      packBaseReference = "master";
-      _logger.log(`No base-reference argument specified on command line or in environment variables. Defaulting to "${packBaseReference}".`);
+      packBaseReference = "main";
+      _logger.log(
+        `No base-reference argument specified on command line or in environment variables. Defaulting to "${packBaseReference}".`
+      );
     }
 
     let packHeadReference: string | undefined = headReference;
     if (!packHeadReference) {
       const statusResult: GitStatusResult = gitStatus(runOptions);
       packHeadReference = statusResult.localBranch!;
-      _logger.log(`No head-reference argument specified on command line or in environment variables. Defaulting to "${packHeadReference}".`);
+      _logger.log(
+        `No head-reference argument specified on command line or in environment variables. Defaulting to "${packHeadReference}".`
+      );
 
       const modifiedFiles: string[] | undefined = statusResult.modifiedFiles;
       if (modifiedFiles) {
@@ -185,18 +233,24 @@ function pack(): void {
 
     if (packBaseReference === packHeadReference) {
       if (rawToPack) {
-        _logger.logWarn(`The base-reference "${packBaseReference}" is equal to the head-reference "${packHeadReference}". This will result in nothing getting packed because there won't be any changes detected. Please change either the base or head-reference.`);
+        _logger.logWarn(
+          `The base-reference "${packBaseReference}" is equal to the head-reference "${packHeadReference}". This will result in nothing getting packed because there won't be any changes detected. Please change either the base or head-reference.`
+        );
       } else {
         toPack = PackagesToPack.DifferentVersion;
-        _logger.log(`The base-reference "${packBaseReference}" is equal to the head-reference "${packHeadReference}" which means there won't be any changes to pack. Switching "to-pack" to be "${PackagesToPack[toPack]}".`);
+        _logger.log(
+          `The base-reference "${packBaseReference}" is equal to the head-reference "${packHeadReference}" which means there won't be any changes to pack. Switching "to-pack" to be "${PackagesToPack[toPack]}".`
+        );
       }
     } else {
       const diffResult: GitDiffResult = gitDiff(packBaseReference, packHeadReference, runOptions);
       changedFiles.push(...diffResult.filesChanged);
       if (!changedFiles || changedFiles.length === 0) {
-        _logger.logTrace(`Found no changes between "${packBaseReference}" and "${packHeadReference}".`);
+        _logger.logTrace(
+          `Found no changes between "${packBaseReference}" and "${packHeadReference}".`
+        );
       } else {
-        _logger.logTrace(`Found the following changed files`)
+        _logger.logTrace(`Found the following changed files`);
         for (const changedFilePath of changedFiles) {
           _logger.logTrace(changedFilePath);
         }
@@ -221,13 +275,16 @@ function pack(): void {
       if (packagesToIgnore.indexOf(packageName) !== -1) {
         _logger.log(`INFO: Skipping package ${packageName}`);
         ++skippedPackages;
-      } else if (!args.package || args.package === packageName || endsWith(packageName, `-${args.package}`)) {
+      } else if (
+        !args.package ||
+        args.package === packageName ||
+        endsWith(packageName, `-${args.package}`)
+      ) {
         const localPackageVersion: string = packageJson.version;
         if (!localPackageVersion) {
           _logger.log(`ERROR: "${packageJsonFilePath}" doesn't have a version specified.`);
           errorPackages++;
-        }
-        else {
+        } else {
           let shouldPack: boolean = false;
 
           if (toPack === PackagesToPack.All) {
@@ -235,35 +292,50 @@ function pack(): void {
           } else if (toPack === PackagesToPack.DifferentVersion) {
             let npmPackageVersion: string | undefined;
             try {
-              const npmViewResult: NPMViewResult = npm.view({ packageName, ...runOptions, showCommand: false, showOutput: false });
+              const npmViewResult: NPMViewResult = npm.view({
+                packageName,
+                ...runOptions,
+                showCommand: false,
+                showOutput: false
+              });
               const distTags: StringMap<string> | undefined = npmViewResult["dist-tags"];
               npmPackageVersion = distTags && distTags["latest"];
-            }
-            catch (error) {
+            } catch (error) {
               // This happens if the package doesn't exist in NPM.
             }
 
-            _logger.logTrace(`Local version: ${localPackageVersion}, NPM version: ${npmPackageVersion}`);
+            _logger.logTrace(
+              `Local version: ${localPackageVersion}, NPM version: ${npmPackageVersion}`
+            );
             shouldPack = localPackageVersion !== npmPackageVersion;
           } else if (toPack === PackagesToPack.BranchHasChanges) {
             const packageFolderPathWithSep: string = normalize(packageFolderPath + path.posix.sep);
-            shouldPack = !!changedFiles && contains(changedFiles, (changedFilePath: string) => normalize(changedFilePath).startsWith(packageFolderPathWithSep));
+            shouldPack =
+              !!changedFiles &&
+              contains(changedFiles, (changedFilePath: string) =>
+                normalize(changedFilePath).startsWith(packageFolderPathWithSep)
+              );
           }
 
           if (!shouldPack) {
             upToDatePackages++;
           } else {
-            _logger.log(`Packing package "${packageName}" with version "${localPackageVersion}"...${args.whatif ? " (SKIPPED)" : ""}`);
+            _logger.log(
+              `Packing package "${packageName}" with version "${localPackageVersion}"...${
+                args.whatif ? " (SKIPPED)" : ""
+              }`
+            );
             if (!args.whatif) {
               try {
                 npm.pack(runOptions);
-                const packFileName = `${packageName.replace("/", "-").replace("@", "")}-${localPackageVersion}.tgz`
+                const packFileName = `${packageName
+                  .replace("/", "-")
+                  .replace("@", "")}-${localPackageVersion}.tgz`;
                 const packFilePath = path.join(packageFolderPath, packFileName);
                 fs.renameSync(packFilePath, path.join(dropFolderPath, packFileName));
                 _logger.log(`Filename: ${packFileName}`);
                 packedPackages++;
-              }
-              catch (error) {
+              } catch (error) {
                 errorPackages++;
               }
             } else {
@@ -275,7 +347,6 @@ function pack(): void {
     }
   }
 
-
   function padLeft(value: number, minimumWidth: number, padCharacter: string = " "): string {
     let result: string = value.toString();
     while (result.length < minimumWidth) {
@@ -283,7 +354,12 @@ function pack(): void {
     }
     return result;
   }
-  const minimumWidth: number = Math.max(errorPackages, upToDatePackages, packedPackages, skippedPackages).toString().length;
+  const minimumWidth: number = Math.max(
+    errorPackages,
+    upToDatePackages,
+    packedPackages,
+    skippedPackages
+  ).toString().length;
   _logger.log();
   _logger.log(`Error packages:      ${padLeft(errorPackages, minimumWidth)}`);
   _logger.log(`Up to date packages: ${padLeft(upToDatePackages, minimumWidth)}`);
@@ -295,15 +371,14 @@ function pack(): void {
   }
 }
 
-gulp.task('pack', async () => pack());
+gulp.task("pack", async () => pack());
 
 gulp.task("find-missing-sdks", async () => {
   try {
     _logger.log(`Passed arguments: ${Argv.print()}`);
-    const argv: Argv.RepositoryOptions
-      = Argv.construct(Argv.Options.Repository)
-        .usage("Example: gulp find-missing-sdks")
-        .argv as any;
+    const argv: Argv.RepositoryOptions = Argv.construct(Argv.Options.Repository).usage(
+      "Example: gulp find-missing-sdks"
+    ).argv as any;
 
     const azureRestApiSpecsRepositoryPath = argv.azureRestAPISpecsRoot;
     _logger.log(`Found azure-rest-api-specs repository in ${azureRestApiSpecsRepositoryPath}`);
@@ -316,20 +391,28 @@ gulp.task("find-missing-sdks", async () => {
 
 gulp.task("set-autopublish", async () => {
   _logger.log(`Passed arguments: ${Argv.print()}`);
-  const argv: Argv.RepositoryOptions & Argv.FilterOptions
-    = Argv.construct(Argv.Options.Repository, Argv.Options.Filter)
-      .usage("Example: gulp set-autopublish")
-      .argv as any;
+  const argv: Argv.RepositoryOptions & Argv.FilterOptions = Argv.construct(
+    Argv.Options.Repository,
+    Argv.Options.Filter
+  ).usage("Example: gulp set-autopublish").argv as any;
 
-  await setAutoPublish(argv.azureSDKForJSRepoRoot, argv.include, argv.exclude || /@azure\/(keyvault|template|service-bus)/);
+  await setAutoPublish(
+    argv.azureSDKForJSRepoRoot,
+    argv.include,
+    argv.exclude || /@azure\/(keyvault|template|service-bus)/
+  );
 });
 
 gulp.task("set-version", async () => {
   _logger.log(`Passed arguments: ${Argv.print()}`);
-  const argv: Argv.RepositoryOptions & Argv.FilterOptions
-    = Argv.construct(Argv.Options.Repository, Argv.Options.Filter)
-      .usage("Example: gulp set-version")
-      .argv as any;
+  const argv: Argv.RepositoryOptions & Argv.FilterOptions = Argv.construct(
+    Argv.Options.Repository,
+    Argv.Options.Filter
+  ).usage("Example: gulp set-version").argv as any;
 
-  await setVersion(argv.azureSDKForJSRepoRoot, argv.include, argv.exclude || /@azure\/(keyvault|template|service-bus)/);
+  await setVersion(
+    argv.azureSDKForJSRepoRoot,
+    argv.include,
+    argv.exclude || /@azure\/(keyvault|template|service-bus)/
+  );
 });

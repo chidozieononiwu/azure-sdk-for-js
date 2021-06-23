@@ -1,15 +1,32 @@
-import { checkEverything, contains, getArgument, getDefaultLogger, gitDiff, GitDiffResult, gitStatus, GitStatusResult, joinPath, Logger, normalize, resolvePath } from "@ts-common/azure-js-dev-tools";
+import {
+  checkEverything,
+  contains,
+  getArgument,
+  getDefaultLogger,
+  gitDiff,
+  GitDiffResult,
+  gitStatus,
+  GitStatusResult,
+  joinPath,
+  Logger,
+  normalize,
+  resolvePath
+} from "@ts-common/azure-js-dev-tools";
 import * as path from "path";
 import { getPackageFolderPaths } from "./common";
 
 const logger: Logger = getDefaultLogger();
 const changedFiles: string[] = [];
 
-let headReference: string | undefined = getArgument("head-reference", { environmentVariableName: "headReference" });
+let headReference: string | undefined = getArgument("head-reference", {
+  environmentVariableName: "headReference"
+});
 if (!headReference) {
   const statusResult: GitStatusResult = gitStatus();
   headReference = statusResult.localBranch!;
-  logger.logInfo(`No head-reference argument specified on command line or in environment variables. Defaulting to "${headReference}".`);
+  logger.logInfo(
+    `No head-reference argument specified on command line or in environment variables. Defaulting to "${headReference}".`
+  );
 
   const modifiedFiles: string[] | undefined = statusResult.modifiedFiles;
   if (modifiedFiles) {
@@ -17,10 +34,14 @@ if (!headReference) {
   }
 }
 
-let baseReference: string | undefined = getArgument("base-reference", { environmentVariableName: "baseReference" });
+let baseReference: string | undefined = getArgument("base-reference", {
+  environmentVariableName: "baseReference"
+});
 if (!baseReference) {
-  baseReference = "master";
-  logger.logInfo(`No base-reference argument specified on command line or in environment variables. Defaulting to "${baseReference}".`);
+  baseReference = "main";
+  logger.logInfo(
+    `No base-reference argument specified on command line or in environment variables. Defaulting to "${baseReference}".`
+  );
 }
 
 if (baseReference !== headReference) {
@@ -29,7 +50,7 @@ if (baseReference !== headReference) {
   if (!changedFiles || changedFiles.length === 0) {
     logger.logInfo(`Found no changes between "${baseReference}" and "${headReference}".`);
   } else {
-    logger.logVerbose(`Found the following changed files`)
+    logger.logVerbose(`Found the following changed files`);
     for (const changedFilePath of changedFiles) {
       logger.logVerbose(changedFilePath);
     }
@@ -47,7 +68,11 @@ if (!packageFolderPaths) {
   logger.logVerbose(`Found ${packageFolderPaths.length} package folders.`);
   for (const packageFolderPath of packageFolderPaths) {
     const packageFolderPathWithSep: string = normalize(packageFolderPath + path.posix.sep);
-    const shouldCheck = !!changedFiles && contains(changedFiles, (changedFilePath: string) => normalize(changedFilePath).startsWith(packageFolderPathWithSep));
+    const shouldCheck =
+      !!changedFiles &&
+      contains(changedFiles, (changedFilePath: string) =>
+        normalize(changedFilePath).startsWith(packageFolderPathWithSep)
+      );
     if (shouldCheck) {
       exitCode += checkEverything({
         logger,
