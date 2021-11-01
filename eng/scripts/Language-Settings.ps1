@@ -24,10 +24,12 @@ function Get-javascript-PackageInfoFromRepo ($pkgPath, $serviceDirectory)
     $jsStylePkgName = $projectJson.name.Replace("@", "").Replace("/", "-")
 
     $pkgProp = [PackageProps]::new($projectJson.name, $projectJson.version, $pkgPath, $serviceDirectory)
-    if ($projectJson.psobject.properties.name -contains 'sdk-type') {
+    if ($projectJson.psobject.properties.name -contains 'sdk-type')
+    {
       $pkgProp.SdkType = $projectJson.psobject.properties['sdk-type'].value
     }
-    else {
+    else
+    {
       $pkgProp.SdkType = "unknown"
     }
     $pkgProp.IsNewSdk = ($pkgProp.SdkType -eq "client") -or ($pkgProp.SdkType -eq "mgmt")
@@ -118,14 +120,15 @@ function Get-javascript-PackageInfoFromPackageFile ($pkg, $workingDirectory)
   return $resultObj
 }
 
-function Get-javascript-DocsMsMetadataForPackage($PackageInfo) { 
+function Get-javascript-DocsMsMetadataForPackage($PackageInfo)
+{ 
   $docsReadmeName = Split-Path -Path $PackageInfo.DirectoryPath -Leaf
   Write-Host "Docs.ms Readme name: $($docsReadmeName)"
   New-Object PSObject -Property @{ 
     DocsMsReadMeName      = $docsReadmeName
     LatestReadMeLocation  = 'docs-ref-services/latest'
     PreviewReadMeLocation = 'docs-ref-services/preview'
-    Suffix = ''
+    Suffix                = ''
   }
 }
 
@@ -133,7 +136,8 @@ function Get-javascript-DocsMsMetadataForPackage($PackageInfo) {
 # may not have been published if the code is identical to the code already 
 # published at the "dev" tag. To prevent using a version which does not exist in 
 # NPM, use the "dev" tag instead.
-function Get-javascript-DocsMsDevLanguageSpecificPackageInfo($packageInfo) {
+function Get-javascript-DocsMsDevLanguageSpecificPackageInfo($packageInfo)
+{
   try
   {
     $npmPackageInfo = Invoke-RestMethod -Uri "https://registry.npmjs.com/$($packageInfo.Name)"
@@ -209,8 +213,10 @@ function Get-javascript-GithubIoDocIndex()
 }
 
 # "@azure/package-name@1.2.3" -> "@azure/package-name"
-function Get-PackageNameFromDocsMsConfig($DocsConfigName) { 
-  if ($DocsConfigName -match '^(?<pkgName>.+?)(?<pkgVersion>@.+)?$') { 
+function Get-PackageNameFromDocsMsConfig($DocsConfigName)
+{ 
+  if ($DocsConfigName -match '^(?<pkgName>.+?)(?<pkgVersion>@.+)?$')
+  { 
     return $Matches['pkgName']
   }
   LogWarning "Could not find package name in ($DocsConfigName)"
@@ -220,7 +226,8 @@ function Get-PackageNameFromDocsMsConfig($DocsConfigName) {
 # Given the name of a package (possibly of the form "@azure/package-name@1.2.3")
 # return a package name with the version specified in $packageVersion
 # "@azure/package-name@1.2.3" "1.3.0" -> "@azure/package-name@1.3.0"
-function Get-DocsMsPackageName($packageName, $packageVersion) { 
+function Get-DocsMsPackageName($packageName, $packageVersion)
+{ 
   return "$(Get-PackageNameFromDocsMsConfig $packageName)@$packageVersion"
 }
 
@@ -233,14 +240,15 @@ function Get-DocsMsPackageName($packageName, $packageVersion) {
 #   registry = "<url>";
 #   ...
 # }
-function ValidatePackagesForDocs($packages) {
+function ValidatePackagesForDocs($packages)
+{
   # Using GetTempPath because it works on linux and windows
   $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
   New-Item -ItemType Directory -Force -Path $tempDirectory | Out-Null
 
   $scriptRoot = $PSScriptRoot
   # Run this in parallel as each step takes a long time to run
-  $validationOutput = $packages | Foreach-Object -Parallel {
+  $validationOutput = $packages | ForEach-Object -Parallel {
     # Get value for variables outside of the Foreach-Object scope
     $scriptRoot = "$using:scriptRoot"
     $workingDirectory = "$using:tempDirectory"
@@ -254,44 +262,49 @@ function ValidatePackagesForDocs($packages) {
 }
 
 $PackageExclusions = @{ 
-  '@azure/identity-vscode'              = 'Fails type2docfx execution https://github.com/Azure/azure-sdk-for-js/issues/16303';
-  '@azure/identity-cache-persistence'   = 'Fails typedoc2fx execution https://github.com/Azure/azure-sdk-for-js/issues/16310';
-  '@azure-rest/core-client-paging'      = 'Cannot find types/latest/core-client-paging-rest.d.ts https://github.com/Azure/azure-sdk-for-js/issues/16677';
-  '@azure/core-asynciterator-polyfill'  = 'Docs CI fails https://github.com/Azure/azure-sdk-for-js/issues/16675';
+  '@azure/identity-vscode'             = 'Fails type2docfx execution https://github.com/Azure/azure-sdk-for-js/issues/16303';
+  '@azure/identity-cache-persistence'  = 'Fails typedoc2fx execution https://github.com/Azure/azure-sdk-for-js/issues/16310';
+  '@azure-rest/core-client-paging'     = 'Cannot find types/latest/core-client-paging-rest.d.ts https://github.com/Azure/azure-sdk-for-js/issues/16677';
+  '@azure/core-asynciterator-polyfill' = 'Docs CI fails https://github.com/Azure/azure-sdk-for-js/issues/16675';
 }
 
-function Update-javascript-DocsMsPackages($DocsRepoLocation, $DocsMetadata) {
+function Update-javascript-DocsMsPackages($DocsRepoLocation, $DocsMetadata)
+{
 
   Write-Host "Excluded packages:"
-  foreach ($excludedPackage in $PackageExclusions.Keys) {
+  foreach ($excludedPackage in $PackageExclusions.Keys)
+  {
     Write-Host "  $excludedPackage - $($PackageExclusions[$excludedPackage])"
   }
 
   $FilteredMetadata = $DocsMetadata.Where({ !($PackageExclusions.ContainsKey($_.Package)) })
 
   UpdateDocsMsPackages `
-    (Join-Path $DocsRepoLocation 'ci-configs/packages-preview.json') `
+  (Join-Path $DocsRepoLocation 'ci-configs/packages-preview.json') `
     'preview' `
     $FilteredMetadata `
-    (Join-Path $DocsRepoLocation 'ci-configs/packages-preview.json.log') # Log file for package validation
+  (Join-Path $DocsRepoLocation 'ci-configs/packages-preview.json.log') # Log file for package validation
 
   UpdateDocsMsPackages `
-    (Join-Path $DocsRepoLocation 'ci-configs/packages-latest.json') `
+  (Join-Path $DocsRepoLocation 'ci-configs/packages-latest.json') `
     'latest' `
     $FilteredMetadata `
-    (Join-Path $DocsRepoLocation 'ci-configs/packages-latest.json.log') # Log file for package validation
+  (Join-Path $DocsRepoLocation 'ci-configs/packages-latest.json.log') # Log file for package validation
 }
 
-function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHistoryLogFile) {
+function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHistoryLogFile)
+{
   Write-Host "Updating configuration: $DocConfigFile with mode: $Mode"
   $packageConfig = Get-Content $DocConfigFile -Raw | ConvertFrom-Json
 
   $outputPackages = @()
-  foreach ($package in $packageConfig.npm_package_sources) {
+  foreach ($package in $packageConfig.npm_package_sources)
+  {
     $packageName = Get-PackageNameFromDocsMsConfig $package.name
     # If Get-PackageNameFromDocsMsConfig cannot find the package name, keep the
     # entry but do no additional processing on it.
-    if (!$packageName) {
+    if (!$packageName)
+    {
       LogWarning "Package name is not valid: ($($package.name)). Keeping entry in docs config but not updating."
       $outputPackages += $package
       continue
@@ -304,18 +317,21 @@ function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHist
     # If this package does not match any published packages keep it in the list.
     # This handles packages which are not tracked in metadata but still need to
     # be built in Docs CI.
-    if ($matchingPublishedPackageArray.Count -eq 0) {
+    if ($matchingPublishedPackageArray.Count -eq 0)
+    {
       Write-Host "Keep non-tracked package: $($package.name)"
       $outputPackages += $package
       continue
     }
 
-    if ($matchingPublishedPackageArray.Count -gt 1) { 
+    if ($matchingPublishedPackageArray.Count -gt 1)
+    { 
       LogWarning "Found more than one matching published package in metadata for $(package.name); only updating first entry"
     }
     $matchingPublishedPackage = $matchingPublishedPackageArray[0]
 
-    if ($Mode -eq 'preview' -and !$matchingPublishedPackage.VersionPreview.Trim()) { 
+    if ($Mode -eq 'preview' -and !$matchingPublishedPackage.VersionPreview.Trim())
+    { 
       # If we are in preview mode and the package does not have a superseding
       # preview version, remove the package from the list. 
       Write-Host "Remove superseded preview package: $($package.name)"
@@ -323,7 +339,8 @@ function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHist
     }
 
     $packageVersion = $matchingPublishedPackage.VersionGA
-    if ($Mode -eq 'preview') {
+    if ($Mode -eq 'preview')
+    {
       $packageVersion = $matchingPublishedPackage.VersionPreview
     }
 
@@ -339,33 +356,40 @@ function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHist
   }
 
   $outputPackagesHash = @{}
-  foreach ($package in $outputPackages) {
+  foreach ($package in $outputPackages)
+  {
     $outputPackagesHash[(Get-PackageNameFromDocsMsConfig $package.name)] = $true
   }
 
   $remainingPackages = @() 
-  if ($Mode -eq 'preview') { 
+  if ($Mode -eq 'preview')
+  { 
     $remainingPackages = $DocsMetadata.Where({
-      $_.VersionPreview.Trim() -and !$outputPackagesHash.ContainsKey($_.Package)
-    })
-  } else {
+        $_.VersionPreview.Trim() -and !$outputPackagesHash.ContainsKey($_.Package)
+      })
+  }
+  else
+  {
     $remainingPackages = $DocsMetadata.Where({
-      $_.VersionGA.Trim() -and !$outputPackagesHash.ContainsKey($_.Package)
-    })
+        $_.VersionGA.Trim() -and !$outputPackagesHash.ContainsKey($_.Package)
+      })
   }
 
   # Add packages that exist in the metadata but are not onboarded in docs config
-  foreach ($package in $remainingPackages) {
+  foreach ($package in $remainingPackages)
+  {
     # If Get-PackageNameFromDocsMsConfig cannot find the package name, skip
     # adding it to the packages
-    if (!(Get-PackageNameFromDocsMsConfig $package.Package)) {
+    if (!(Get-PackageNameFromDocsMsConfig $package.Package))
+    {
       LogWarning "Package name not valid: ($($package.Package)). Skipping adding from metadata to docs config"
       continue
     }
 
 
     $packageVersion = $package.VersionGA
-    if ($Mode -eq 'preview') {
+    if ($Mode -eq 'preview')
+    {
       $packageVersion = $package.VersionPreview
     }
     $packageName = Get-DocsMsPackageName $package.Package $packageVersion
@@ -375,14 +399,17 @@ function UpdateDocsMsPackages($DocConfigFile, $Mode, $DocsMetadata, $PackageHist
 
   $packageValidation = ValidatePackagesForDocs $outputPackages
   $validationHash = @{}
-  foreach ($result in $packageValidation) {
+  foreach ($result in $packageValidation)
+  {
     $validationHash[$result.Package.name] = $result
   }
 
   # Remove invalid packages
   $finalOutput = @()
-  foreach ($package in $outputPackages) {
-    if (!$validationHash[$package.name].Success) {
+  foreach ($package in $outputPackages)
+  {
+    if (!$validationHash[$package.name].Success)
+    {
       LogWarning "Removing invalid package: $($package.name)"
 
       # If a package is removed create log entry for the removal
@@ -455,7 +482,7 @@ function GetExistingPackageVersions ($PackageName, $GroupId = $null)
 {
   try
   {
-    $existingVersion = Invoke-RestMethod -Method GET -Uri "http://registry.npmjs.com/${PackageName}"
+    $existingVersion = Invoke-RestMethod -Method GET -Uri "http://registry.npmjfgrfgfs.com/${PackageName}"
     return ($existingVersion.versions | Get-Member -MemberType NoteProperty).Name
   }
   catch
