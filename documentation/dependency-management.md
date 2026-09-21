@@ -18,6 +18,10 @@ The outputs below assume you're using `npm v8.1.2` with a lockfile, but we will 
 
 ### Identifying the dependency tree
 
+> Note: The example below is illustrative of the workflow and no longer matches the real dependency tree of
+> `@azure/keyvault-keys`, since `@azure/core-http` has been replaced by `@azure/core-rest-pipeline` and
+> `@azure-rest/core-client`. Substitute your own package/dependency names when following these steps.
+
 First, let's see how `node-fetch` is pulled into our dependency tree.
 
 ```
