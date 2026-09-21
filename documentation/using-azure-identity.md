@@ -169,6 +169,9 @@ on which credential you are using.
 
 ### UsernamePasswordCredential
 
+> NOTE: `UsernamePasswordCredential` is deprecated. Use a more secure credential
+> type. See https://aka.ms/azsdk/identity/mfa for details.
+
 The `UsernamePasswordCredential` follows the [resource owner password credential
 flow](https://learn.microsoft.com/azure/active-directory/develop/v2-oauth-ropc)
 to authenticate public or confidential clients. To use this credential, you

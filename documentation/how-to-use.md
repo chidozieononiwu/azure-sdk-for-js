@@ -62,8 +62,8 @@ In this document, we will give a brief introduction on how to use the JavaScript
 
     ```ts
     const client = new ComputeManagementClient(credentials, subscriptionID);
-    const result= await client.galleries.beginCreateOrUpdateAndWait(resourceGroupName, galleryName, gallery);
-    const result= await client.galleryImages.begincreateOrUpdateAndWait(resourceGroupName, galleryName, galleryImageName, galleryImage);
+    const result= await client.galleries.createOrUpdate(resourceGroupName, galleryName, gallery);
+    const result= await client.galleryImages.createOrUpdate(resourceGroupName, galleryName, galleryImageName, galleryImage);
     ```
     
 1. Install all the dependencies
