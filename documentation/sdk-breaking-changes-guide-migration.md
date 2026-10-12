@@ -24,6 +24,7 @@ TypeSpec configuration changes should be made in the `tspconfig.yaml` file locat
 ```yaml
 options:
   "@azure-tools/typespec-ts":
+    compatibility-lro: true
 ```
 
 ## Breaking Changes That Can Be Resolved with Client Customizations or Configurations
