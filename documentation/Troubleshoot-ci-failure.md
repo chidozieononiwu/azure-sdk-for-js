@@ -13,7 +13,7 @@ Add the broken links into [eng/ignore-links.txt](https://github.com/Azure/azure-
 
 For new service the error usually happens, fix spelling in code or in markdown at file [.vscode/cspell.json](https://github.com/Azure/azure-sdk-for-js/blob/main/.vscode/cspell.json). See an example in [devcenter PR](https://github.com/chrissmiller/azure-sdk-for-js/commit/ef18dccae59e98185e3854f8b087230b65735744).
 
-# Push failure\
+# Push failure
 
 ## Spawn pwsh ENOENT
 

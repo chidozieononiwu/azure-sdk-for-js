@@ -128,7 +128,7 @@ In the Copilot Chat panel, use the `@` prefix to summon an agent by name:
 
 ### Tips
 
-- Agents have access to file reading, code search, and bash tools — they can
+- Agents have access to file reading and code search tools (and, except Scribe, bash) — they can
   explore the codebase to answer questions.
 - You can ask an agent to review specific files, a git diff, or the entire
   branch.
