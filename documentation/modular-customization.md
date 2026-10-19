@@ -14,7 +14,7 @@ If your package has not been set up for customization yet, run the following com
 npx dev-tool customization init
 ```
 
-This will copy the contents of `src/` into `generated/`, establishing the baseline for the customization workflow. The command will fail if a `generated/` folder already exists (meaning customization is already set up).
+This will copy the contents of `src/` into `generated/`, establishing the baseline for the customization workflow. If a `generated/` folder already exists (meaning customization is already set up), the command logs that and exits without copying anything.
 
 ## Folder Structure
 
