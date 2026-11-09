@@ -126,7 +126,7 @@ This may be installed into a client during construction using the `additionalPol
 
 ```ts
 // Assuming the options bag inherits from CommonClientOptions as it should
-const client = new Client(endpoint, credential, {
+const client = new ServiceClient(endpoint, credential, {
   additionalPolicies: [debugLoggingPolicy],
 });
 ```
